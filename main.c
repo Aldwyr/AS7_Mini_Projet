@@ -1,46 +1,49 @@
+#include <unistd.h>
 #include "header.h"
+#include "team.h"
 
-s_robot* initRobot(s_team* team) {
-    s_robot* robot = malloc(sizeof(s_robot));
-    robot->priority = 0;
-    robot->type = WARRIOR; //TODO:Pour l'instant, on ne s'emmerde pas avec le type du robot
-    robot->myTeam = team;
-    return robot;
-}
+void *debutExploration(void *args) {
+    int entrerSalleNb;
+    s_robot* robot = (s_robot*) args;
+    printf("Je suis le %d robot de l'equipe %d,j'entre dans le Labyrinth.:D\n", robot->nb_robot, robot->myTeam->nb_team);
+//    sleep(10);
 
-s_hallway* initHallway() {
-    s_hallway* hallway = malloc(sizeof(s_hallway));
-    hallway->mAcces = (pthread_mutex_t) PTHREAD_MUTEX_INITIALIZER;
+    entrerSalleNb = robot->myTeam->nb_team - 1;
 
-//    printf("test : %p\n", hallway);
-    return hallway;
-}
 
-void initLabyrinth(s_labyrinth* labyrinth) {
-    labyrinth->hallways[0] = initHallway(); //TODO: à free
-    labyrinth->rooms[0].hallway[0] = labyrinth->hallways[0];
-    labyrinth->rooms[1].hallway[0] = labyrinth->hallways[0];
-//    printf("test : %p\n", labyrinth->hallways[0]);
-
-}
-
-void initTeam(s_team* team, s_labyrinth* labyrinth) {
-    team->member[0] = initRobot(team);
-    team->mTeam = (pthread_mutex_t) PTHREAD_MUTEX_INITIALIZER;
-    team->labyrinth = labyrinth;
+    return NULL;
 }
 
 int main() {
     // On creée les thread;
-    pthread_t robot1Thread;
-    pthread_t robot2Thread;
+    pthread_t robotsTeamA[ROBOT_NUMBER];
+    pthread_t rebotsTeamB[ROBOT_NUMBER];
 
     // le labyrinth puis les team;
     s_labyrinth labyrinth;
     initLabyrinth(&labyrinth);
     s_team team1;
     s_team team2;
-    initTeam(&team1, &labyrinth);
-    initTeam(&team2, &labyrinth);
+    initTeam(&team1, &labyrinth, 1);
+    initTeam(&team2, &labyrinth, 2);
+
+    for (int i = 0; i < ROBOT_NUMBER; ++i) {
+        if (i%2 == 0) {
+            pthread_create(&robotsTeamA[i], NULL, &debutExploration, team1.member[i]);
+            pthread_create(&rebotsTeamB[i], NULL, &debutExploration, team2.member[i]);
+        }
+        else {
+            pthread_create(&rebotsTeamB[i], NULL, &debutExploration, team2.member[i]);
+            pthread_create(&robotsTeamA[i], NULL, &debutExploration, team1.member[i]);
+        }
+    }
+    for (int j = 0; j < ROBOT_NUMBER; ++j) {
+        pthread_join(robotsTeamA[j], NULL);
+        pthread_join(rebotsTeamB[j], NULL);
+    }
+
+    destroyTeam(&team1);
+    destroyTeam(&team2);
+    destroyLabyrinth(&labyrinth);
     return 0;
 }
