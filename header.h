@@ -12,7 +12,8 @@
 #define ROBOT_NUMBER 5
 #define HALLWAY_NUMBER 1
 #define ROOM_NUMBER 2
-#define NB_TOUR 50;
+#define NB_TEAM 2
+#define NB_TOUR 20000;
 
 typedef enum type {
     WARRIOR,

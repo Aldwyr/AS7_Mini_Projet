@@ -17,6 +17,7 @@ typedef struct room {
 
 typedef struct hallway {
     pthread_mutex_t accesGeneral;
+    int cptteam[NB_TEAM];
     pthread_mutex_t mAcces[2];
     s_room* room[2];
 } s_hallway;

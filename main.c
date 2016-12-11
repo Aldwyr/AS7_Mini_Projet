@@ -3,14 +3,20 @@
 #include "team.h"
 
 void *debutExploration(void *args) {
-    int entrerSalleNb;
     s_robot* robot = (s_robot*) args;
+    int t;
     printf("Je suis le %d robot de l'equipe %d,j'entre dans le Labyrinth.:D\n", robot->nb_robot, robot->myTeam->nb_team);
 //    sleep(10);
+    while (1) {
+        pthread_mutex_lock(&robot->myTeam->mTeam);
+        t = nbTourRestant(robot->myTeam);
+        pthread_mutex_unlock(&robot->myTeam->mTeam);
+        if (t == -1)
+            break;
+        enterHallway(robot->salleActuelle, robot);
 
-    entrerSalleNb = robot->myTeam->nb_team - 1;
-
-
+    }
+    printf("J'en ai marre, je me casse.\n");
     return NULL;
 }
 

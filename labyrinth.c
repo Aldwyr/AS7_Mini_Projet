@@ -13,6 +13,9 @@ s_hallway* initHallway(s_room* room1, s_room* room2) {
     hallway->accesGeneral = (pthread_mutex_t) PTHREAD_MUTEX_INITIALIZER;
 
 
+    for (int i = 0; i < NB_TEAM; ++i) {
+        hallway->cptteam[i] = 0;
+    }
     hallway->room[0] = room1;
     hallway->room[1] = room2;
     //    printf("test : %p\n", hallway);
