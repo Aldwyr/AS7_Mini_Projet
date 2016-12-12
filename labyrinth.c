@@ -2,20 +2,19 @@
 // Created by gggue on 11/12/2016.
 //
 
-#include "labyrinth.h"
-
-
+#include "header.h"
 
 s_hallway* initHallway(s_room* room1, s_room* room2) {
     s_hallway* hallway = malloc(sizeof(s_hallway));
     hallway->mAcces[0] = (pthread_mutex_t) PTHREAD_MUTEX_INITIALIZER;
     hallway->mAcces[1] = (pthread_mutex_t) PTHREAD_MUTEX_INITIALIZER;
     hallway->accesGeneral = (pthread_mutex_t) PTHREAD_MUTEX_INITIALIZER;
+    // Il n'y a, de toute façon qu'un seul sense de marche.
+    for (int j = 0; j < NB_CASE; ++j)
+        hallway->cases[j].QuiEstSurMoi = NULL;
 
+    hallway->cpt = 0;
 
-    for (int i = 0; i < NB_TEAM; ++i) {
-        hallway->cptteam[i] = 0;
-    }
     hallway->room[0] = room1;
     hallway->room[1] = room2;
     //    printf("test : %p\n", hallway);
@@ -46,6 +45,8 @@ void destroyHallway(s_hallway* hallway1) {
         exit(EXIT_FAILURE);
     }
 
+    for (int j = 0; j < NB_CASE; ++j)
+        hallway1->cases[j].QuiEstSurMoi = NULL;
     hallway1->room[0] = NULL;
     hallway1->room[1] = NULL;
     free(hallway1);

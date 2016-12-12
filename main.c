@@ -1,11 +1,9 @@
 #include <unistd.h>
 #include "header.h"
-#include "team.h"
 
 void *debutExploration(void *args) {
     s_robot* robot = (s_robot*) args;
     int t;
-    printf("Je suis le %d robot de l'equipe %d,j'entre dans le Labyrinth.:D\n", robot->nb_robot, robot->myTeam->nb_team);
 //    sleep(10);
     while (1) {
         pthread_mutex_lock(&robot->myTeam->mTeam);
@@ -13,8 +11,17 @@ void *debutExploration(void *args) {
         pthread_mutex_unlock(&robot->myTeam->mTeam);
         if (t == -1)
             break;
+        // Le robot entre est s'il est le 1er à entrer prends la 1er case du couloir.
         enterHallway(robot->salleActuelle, robot);
-
+        while (robot->suivant < NB_CASE) {
+            avanceDansLeHallway(robot->salleActuelle, robot);
+            sleep(1);
+            robot->suivant++;
+        }
+        pthread_cond_signal(&robot->cQuiAttendQueJeBouge);
+        robot->salleActuelle->hallway[0]->cases[robot->suivant - 1].QuiEstSurMoi = NULL;
+        robot->suivant = 0;
+        sortiHallway(robot->salleActuelle, robot);
     }
     printf("J'en ai marre, je me casse.\n");
     return NULL;
@@ -45,7 +52,7 @@ int main() {
     }
     for (int j = 0; j < ROBOT_NUMBER; ++j) {
         pthread_join(robotsTeamA[j], NULL);
-        pthread_join(rebotsTeamB[j], NULL);
+        //pthread_join(rebotsTeamB[j], NULL);
     }
 
     destroyTeam(&team1);
